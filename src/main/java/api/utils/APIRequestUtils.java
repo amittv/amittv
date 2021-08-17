@@ -3,15 +3,16 @@ package api.utils;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 
-import static api.utils.PropertyUtils.getValue;
 import static io.restassured.RestAssured.given;
 
 import java.util.Map;
 
 public class APIRequestUtils {
 
+    public static String BASE_URL = "";
+
     public enum RequestMethodType {
-        POST, GET, DELETE, PUT
+        POST, GET, DELETE, PUT, PATCH
     }
 
     public Response getResponse(String url, RequestSpecification request, RequestMethodType methodType) {
@@ -24,6 +25,8 @@ public class APIRequestUtils {
                 return request.delete(url);
             case PUT:
                 return request.put(url);
+            case PATCH:
+                return request.patch(url);
             default:
                 return null;
         }
@@ -31,12 +34,12 @@ public class APIRequestUtils {
 
     public Response getResponse(String url, String jsonBody, Map<String, ? extends Object> queryParam,
                                 String contentType, Map<String, String> headers, RequestMethodType methodType) {
-        String requestURL = getValue("BaseURL") + url;
+        String requestURL = BASE_URL + url;
         RequestSpecification request = given();
 
         if (jsonBody != null) {
             if (!jsonBody.equals(""))
-                request = request.body(jsonBody);
+                request = request.body(jsonBody.replace("=", ":"));
         }
 
         if (queryParam != null) {
