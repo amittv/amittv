@@ -24,7 +24,7 @@ public class ReqResTests {
     Response listUsersRes, singleUserGetRes, singleUserNonExisting;
     Response listResourceRes, singleResourceGetRes, singleResourceNonExisting;
     Response createUserRes, updateUserRes, PatchUserRes, deleteUserRes;
-    Response registerUserRes, registerFailRes, logInRes, logInFailRes, delayedRes;
+    Response registerUserRes, registerFailRes, logInRes, logInFailRes, listUsersDelayedRes;
     int userIdToUpdate;
 
     @Given("^Project configurations are loaded$")
@@ -107,23 +107,23 @@ public class ReqResTests {
 //
             case "Register User":
                 Assert.assertTrue("Verify the response status code is 200.", registerUserRes.statusCode() == 200);
-                registerUserRes.then().assertThat().body(matchesJsonSchema(new File("./src/test/resources/schemas/UpdateUser.json")));
+                registerUserRes.then().assertThat().body(matchesJsonSchema(new File("./src/test/resources/schemas/RegisterUser.json")));
                 break;
             case "Register User Fail":
-                Assert.assertTrue("Verify the response status code is 200.", registerFailRes.statusCode() == 200);
-                registerFailRes.then().assertThat().body(matchesJsonSchema(new File("./src/test/resources/schemas/UpdateUser.json")));
+                Assert.assertTrue("Verify the response status code is 400.", registerFailRes.statusCode() == 400);
+                registerFailRes.then().assertThat().body(matchesJsonSchema(new File("./src/test/resources/schemas/RegisterLoginError.json")));
                 break;
             case "Login User":
                 Assert.assertTrue("Verify the response status code is 200.", logInRes.statusCode() == 200);
-                logInRes.then().assertThat().body(matchesJsonSchema(new File("./src/test/resources/schemas/UpdateUser.json")));
+                logInRes.then().assertThat().body(matchesJsonSchema(new File("./src/test/resources/schemas/LogIn.json")));
                 break;
             case "Login User fail":
-                Assert.assertTrue("Verify the response status code is 200.", logInFailRes.statusCode() == 200);
-                logInFailRes.then().assertThat().body(matchesJsonSchema(new File("./src/test/resources/schemas/UpdateUser.json")));
+                Assert.assertTrue("Verify the response status code is 400.", logInFailRes.statusCode() == 400);
+                logInFailRes.then().assertThat().body(matchesJsonSchema(new File("./src/test/resources/schemas/RegisterLoginError.json")));
                 break;
             case "List Users Delayed":
-                Assert.assertTrue("Verify the response status code is 200.", delayedRes.statusCode() == 200);
-                delayedRes.then().assertThat().body(matchesJsonSchema(new File("./src/test/resources/schemas/UpdateUser.json")));
+                Assert.assertTrue("Verify the response status code is 200.", listUsersDelayedRes.statusCode() == 200);
+                listUsersDelayedRes.then().assertThat().body(matchesJsonSchema(new File("./src/test/resources/schemas/ListUsers.json")));
                 break;
         }
     }
@@ -209,27 +209,27 @@ public class ReqResTests {
 
     @When("^I register a new user$")
     public void i_register_a_new_user() {
-        
+        registerUserRes = reqRes.registerUser(true);
     }
 
     @When("^I register a new user with incorrect details$")
     public void i_register_a_new_user_with_incorrect_details() {
-        
+        registerFailRes = reqRes.registerUser(false);
     }
 
     @When("^I Login a user with email and password$")
     public void i_login_a_user_with_email_and_password() {
-        
+        logInRes = reqRes.logInUserSuccess();
     }
 
-    @When("^I login a user with missing email password$")
-    public void i_login_a_user_with_missing_email_password() {
-        
+    @When("^I login a user with missing \"([^\"]*)\"$")
+    public void i_login_a_user_with_missing_something(String strAr)  {
+        logInFailRes = reqRes.logInUserFailed(strAr);
     }
 
     @When("^List users api is called with delay$")
     public void list_users_api_is_called_with_delay() {
-        
+        listUsersDelayedRes = reqRes.listUsersDelayed(3);
     }
 
 }

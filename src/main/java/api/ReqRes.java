@@ -93,27 +93,37 @@ public class ReqRes extends APIRequestUtils {
     }
 
     public Response registerUser(boolean correct){
+        Map<Object, Object> body = new HashMap<>();
+        body.put("\"email\"", "\"eve.holt@reqres.in\"");
+        String apiExtensions = propertyUtils.getExtension("REGISTER");
         if(correct){
-            Map<Object, Object> body = new HashMap<>();
-            body.put("\"email\"", "\"" + getRandomString() + "\"");
-            body.put("\"password\"", "\"" + getRandomString() + "\"");
-            String apiExtensions = propertyUtils.getExtension("SINGLE_USER").replace("ID", propertyUtils.getValue("CREATE_USER_ID"));
-            return getResponse(apiExtensions, body.toString(), null,"application/json", null, RequestMethodType.PUT);
+            body.put("\"password\"", "\"cityslicka\"");
         }
-        else {
-            Map<Object, Object> body = new HashMap<>();
-            body.put("\"email\"", "\"" + getRandomString() + "\"");
-            String apiExtensions = propertyUtils.getExtension("SINGLE_USER").replace("ID", propertyUtils.getValue("CREATE_USER_ID"));
-            return getResponse(apiExtensions, body.toString(), null,"application/json", null, RequestMethodType.PUT);
-        }
+        return getResponse(apiExtensions, body.toString(), null,"application/json", null, RequestMethodType.POST);
     }
-    public Response logInUser(boolean correct){
-        if(correct){
-
+    public Response logInUserSuccess(){
+        Map<Object, Object> body = new HashMap<>();
+        body.put("\"email\"", "\"" + propertyUtils.getValue("EMAIL") + "\"");
+        body.put("\"password\"", "\"" + propertyUtils.getValue("PASSWORD") + "\"");
+        String apiExtensions = propertyUtils.getExtension("LOGIN");
+        return getResponse(apiExtensions, body.toString(), null,"application/json", null, RequestMethodType.POST);
+    }
+    public Response logInUserFailed(String errorType){
+        Map<Object, Object> body = new HashMap<>();
+        String apiExtensions = propertyUtils.getExtension("LOGIN");
+        switch (errorType){
+            case "email":
+                body.put("\"password\"", "\"" + propertyUtils.getValue("PASSWORD") + "\"");
+                break;
+            case "password":
+                body.put("\"email\"", "\"" + propertyUtils.getValue("EMAIL") + "\"");
+                break;
+            case "user":
+                body.put("\"email\"", "\"" + getRandomString() + "@reqres.in\"");
+                body.put("\"password\"", "\"" + getRandomString() + "\"");
+                break;
         }
-        else {
-
-        }
+        return getResponse(apiExtensions, body.toString(), null,"application/json", null, RequestMethodType.POST);
     }
     public Response listUsersDelayed(int delay){
         Map<String, String> queryParameters = new HashMap<String, String>();
